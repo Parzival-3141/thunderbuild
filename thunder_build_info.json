@@ -1,0 +1,20 @@
+{
+	"version_file": "file/to/regex",
+	"version_regex": "version = (\d+)\.(\d+)\.(\d+)",
+	"output": "defaults/to/./mod_builds/",
+	"icon": "path/to/icon.png",
+	"readme": "path/to/README.md",
+	"mod_files": {
+		"path/to/mod/file": "path/in/zip/file",
+		"example/bin/MyMod.dll": "Mods/MyMod.dll",
+	},
+	"manifest": {
+		"name": "MyMod",
+		"version_number": "0.0.0",
+		"website_url": "",
+		"description": "",
+		"dependencies": [
+			"your-deps-here"
+		]
+	}
+}
