@@ -3,6 +3,10 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import json
 from os.path import exists
 
+from args import parse_arguments
+from dataclasses import dataclass
+from typing import NamedTuple
+
 
 # I don't think people will want to mass build multiple mods in one go, so we should only
 # accept one info file. They can make a script to automate that if they want to.
@@ -21,55 +25,37 @@ from os.path import exists
 # Full command input
 # thunderbuild -version 1.2.3 -overwrite -output ./builds/ ./thunder_info.json
 
+@dataclass
+class ThunderBuildArgs:
+	version: str
+	overwrite: bool = False
+	output_dir: str = "./thunder_builds/"
+	info_file: str = "./thunder_info.json"
+	help: bool = False
 
-def find_version(info) -> str:
-	version = ""
-	
-	# Set version from args
-	
-	if "version_file" in info and "version_regex" in info:
-		with open(info["version_file"]) as ver_file:
-			match = re.search(info["version_regex"])
-			if match:
-				version = f"{match.group(1)}.{match.group(2)}.{match.group(3)}"
+helptxt = \
+"""
+Usage: thunderbuild [OPTIONS]
 
-	if version == "" and "version_number" in info["manifest"]:
-		version = info["manifest"]["version_number"]
+OPTIONS:
+    -version    <string>   Version to mark the build as. Overrides versioning in the Thunder Info file. 
+                           Follows Semantic Versioning (major.minor.patch).
+    -overwrite             Overwrite a build if one with the same version already exists.
+    -output_dir <path>     Directory to output the build. Defaults to "./thunder_builds/".
+    -info_file  <path>     Path to a Thunder Info file. Defaults to "./thunder_info.json".
+    -help                  Display this help text.
 	
-	if version == "":
-		# print("Cannot find version info")
-		exit("Cannot find version info")
-	
-	return version
-
+Relative paths are treated as relative to the current working directory.
+In Thunder Info files, paths are relative to the file location.
+"""
 
 
 if __name__ == "__main__":
 	import sys
-	print(sys.argv)
-
-# thunder_info = None
-# with open("thunder_info.json") as info_file:
-# 	thunder_info = json.load(info_file)
-
-
-# filename = f"{thunder_info["manifest"]["name"]}-v{version}.zip"
-# buildpath = "thunder_builds/" + filename
-# 
-# if exists(buildpath) and "-overwrite" not in args:
-# 	exit(f"Build {buildpath} already exists! Use -overwrite to replace an existing build.")
-# 
-# manifest = thunder_info["manifest"]
-# manifest["version_number"] = version
-# 
-# with ZipFile(buildpath, mode="w", compression=ZIP_DEFLATED) as zfile:
-# 	zfile.write(thunder_info["readme"], arcname="README.md")
-# 	zfile.write(thunder_info["icon"], arcname="icon.png")
-# 	zfile.writestr("manifest.json", json.dumps(manifest, indent="\t"))
-# 	
-# 	for mod_filepath, mod_arcname in thunder_info["mod_files"].items():
-# 		zfile.write(mod_filepath, arcname=mod_arcname)
-		
-		
-		
-		
+	
+	success, args = parse_arguments(sys.argv[1:], ThunderBuildArgs)
+	
+	if not success or args.help:
+		exit(helptxt)
+	
+	print(args)
