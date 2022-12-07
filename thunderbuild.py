@@ -40,7 +40,7 @@ Usage: thunderbuild [OPTIONS]
 OPTIONS:
     -version    <string>   Version to mark the build as. Overrides versioning in the Thunder Info file. 
                            Follows Semantic Versioning (major.minor.patch).
-    -overwrite             Overwrite a build if one with the same version already exists.
+    -overwrite             Overwrite a build if one with the same version already exists in output_dir.
     -output_dir <path>     Directory to output the build. Defaults to "./thunder_builds/".
     -info_file  <path>     Path to a Thunder Info file. Defaults to "./thunder_info.json".
     -help                  Display this help text.
@@ -48,6 +48,27 @@ OPTIONS:
 Relative paths are treated as relative to the current working directory.
 In Thunder Info files, paths are relative to the file location.
 """
+
+def find_version(args: ThunderBuildArgs, info: dict) -> str:
+	if args.version != None:
+		return args.version
+	
+	# Version Regex
+	if "version_file" in info and "version_regex" in info:
+		if exists(info["version_file"]):
+			match = re.search(info["version_regex"])
+			if match:
+				return f"{match.group(1)}.{match.group(2)}.{match.group(3)}"
+			else:
+				print("Version regex failed, searching in manifest section...")
+		else:
+			print("Version file at %s doesn't exist! Searching in manifest section..."\
+			% info["version_file"])
+			
+	if "version_number" in info["manifest"]:
+		return info["manifest"]["version_number"]
+	
+	exit("Version search failed. Check your Thunder Info file (%s) for errors." % args.info_file)
 
 
 if __name__ == "__main__":
@@ -58,4 +79,15 @@ if __name__ == "__main__":
 	if not success or args.help:
 		exit(helptxt)
 	
-	print(args)
+	thunderinfo = None
+	if not exists(args.info_file):
+		exit("Thunder Info file at %s doesn't exist!" % args.info_file)
+	with open(args.info_file) as info_file:
+		thunderinfo = json.load(info_file)
+	
+	#print(json.dumps(thunderinfo, indent=4))
+	version = find_version(args, thunderinfo)
+	
+	print("Building", version)
+	
+	
