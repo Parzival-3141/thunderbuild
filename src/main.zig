@@ -2,13 +2,19 @@ const std = @import("std");
 const arguments = @import("arguments.zig");
 //const json = std.json;
 
+const MyEnum = enum {
+    auto,
+    on,
+    off,
+};
+
 const MyArguments = struct {
     boolean: bool,
     string: []const u8 = "hello world",
     float: f32,
     int8: i8,
     int16: i16,
-    optional: ?u8,
+    eenum: MyEnum = .auto,
 };
 
 pub fn main() !void {
@@ -39,11 +45,10 @@ fn print_struct(comptime T: type, instance: T) void {
     std.debug.print("}}\n", .{});
 }
 
-pub fn print(comptime text: []const u8, args: anytype) !void {
+pub fn print(comptime text: []const u8, args: anytype) void {
     var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
     const stdout = bw.writer();
 
-    try stdout.print(text, args);
-
-    try bw.flush(); // don't forget to flush!
+    stdout.print(text, args) catch unreachable;
+    bw.flush() catch unreachable; // don't forget to flush!
 }
