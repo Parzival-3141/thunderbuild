@@ -8,6 +8,7 @@ const MyArguments = struct {
     float: f32,
     int8: i8,
     int16: i16,
+    optional: ?u8,
 };
 
 pub fn main() !void {
@@ -16,7 +17,8 @@ pub fn main() !void {
 
     const allocator = arena.allocator();
 
-    const result = try arguments.parse_args(allocator, MyArguments);
+    const result = try arguments.parse_args(MyArguments, allocator);
+    defer result.deinit();
 
     std.debug.print("Success: {any}\n\n", .{result.success});
     // if (!result.success) {
@@ -30,8 +32,8 @@ fn print_struct(comptime T: type, instance: T) void {
     std.debug.print("instance: {s} {{\n", .{@typeName(T)});
 
     inline for (@typeInfo(T).Struct.fields) |field| {
-        const format = if (field.field_type == []const u8) "\"{s}\"" else "{any}";
-        std.debug.print("    {s}: {s} = " ++ format ++ "\n", .{ field.name, @typeName(field.field_type), @field(instance, field.name) });
+        const format = if (field.type == []const u8) "\"{s}\"" else "{any}";
+        std.debug.print("    {s}: {s} = " ++ format ++ "\n", .{ field.name, @typeName(field.type), @field(instance, field.name) });
     }
 
     std.debug.print("}}\n", .{});
@@ -44,9 +46,4 @@ pub fn print(comptime text: []const u8, args: anytype) !void {
     try stdout.print(text, args);
 
     try bw.flush(); // don't forget to flush!
-}
-
-test "string interpolation" {
-    const format = "s";
-    std.debug.print("\n{s}: {" ++ format ++ "}\n", .{ "test", "hello world" });
 }
