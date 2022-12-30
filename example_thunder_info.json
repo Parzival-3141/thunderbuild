@@ -1,7 +1,7 @@
 {
 	"version_file": "file/to/regex",
 	"version_regex": "version = (\\d+)\\.(\\d+)\\.(\\d+)",
-	"output": "defaults/to/./mod_builds/",
+	"output_dir": "defaults/to/./thunder_builds/",
 	"icon": "path/to/icon.png",
 	"readme": "path/to/README.md",
 	"mod_files": [

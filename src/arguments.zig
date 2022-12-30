@@ -93,7 +93,7 @@ pub fn parse_args(comptime T: type, allocator: std.mem.Allocator) !ParseResult(T
         }
 
         if (!found) {
-            print("Argument '{s}' is invalid\n", .{arg});
+            print("Argument '{s}' is not valid\n", .{arg});
             result.success = false;
         }
     }
