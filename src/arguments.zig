@@ -1,5 +1,4 @@
 // Argument parsing inspired by Jon Blow (https://www.youtube.com/watch?v=TwqXTf7VfZk)
-// and MasterQ32 (https://github.com/MasterQ32/zig-args)
 
 const std = @import("std");
 const print = @import("main.zig").print;
